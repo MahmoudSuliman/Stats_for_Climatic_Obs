@@ -84,7 +84,15 @@ for i in range (0,len(plist)):
     x23=pd.read_csv(plist[i], sep=';', names=list('abcdefg'))
     startingindex = x23.loc[x23['a']=='Från Datum Tid (UTC)'].index.tolist()
     x232=pd.read_csv(plist[i], sep=';', header=startingindex)
-    dpfin[stname]=x232[x232['Från Datum Tid (UTC)'].str.contains('|'.join(stperiod))] # filtering study years using the regex character '|'
+    # converting column to datetime
+    x232['Representativ månad']=pd.to_datetime(x232['Representativ månad'])
+    x232=x232.set_index(x232['Representativ månad']) # changing index
+    xcv=pd.DataFrame(data=emp ,columns=x232.columns) # creating a df with nan
+    xcv['Representativ månad']= stdates
+    xcv=xcv.set_index(stdates) # setting the index to the full period
+    xcv.update(x232) # Updating the df with the full period
+    dpfin[stname] = xcv
+    # dtfin[stname]=x232[x232['Från Datum Tid (UTC)'].str.contains('|'.join(stperiod))] # filtering study years using the regex character '|'
 
 # =============================================================================
 # =============================================================================
@@ -123,6 +131,9 @@ for i in range (0,len(tlist)):
 # tfin
 # study period converted to string array and then to a list
 stperiod=np.arange(1960, 2020).astype(str).tolist()
+stdates = pd.date_range('1960-01-01','2020-01-01' , freq='1M')-pd.offsets.MonthBegin(1)
+emp=np.empty((720,7)); emp[:]=np.nan
+# cols = list(x232.columns)
 
 dtfin={}
 for i in range (0,len(tlist)):
@@ -133,8 +144,20 @@ for i in range (0,len(tlist)):
     x23=pd.read_csv(tlist[i], sep=';', names=list('abcdefg'))
     startingindex = x23.loc[x23['a']=='Från Datum Tid (UTC)'].index.tolist()
     x232=pd.read_csv(tlist[i], sep=';', header=startingindex)
-    dtfin[stname]=x232[x232['Från Datum Tid (UTC)'].str.contains('|'.join(stperiod))] # filtering study years using the regex character '|'
+    # converting column to datetime
+    x232['Representativ månad']=pd.to_datetime(x232['Representativ månad'])
+    x232=x232.set_index(x232['Representativ månad']) # changing index
+    xcv=pd.DataFrame(data=emp ,columns=x232.columns) # creating a df with nan
+    xcv['Representativ månad']= stdates
+    xcv=xcv.set_index(stdates) # setting the index to the full period
+    xcv.update(x232) # Updating the df with the full period
+    dtfin[stname] = xcv
+    # dtfin[stname]=x232[x232['Från Datum Tid (UTC)'].str.contains('|'.join(stperiod))] # filtering study years using the regex character '|'
 
+# converting column to datetime
+x222=dtfin['1.Tullinge A']['Representativ månad']
+y222=dtfin['1.Tullinge A']['Lufttemperatur']
 
+plt.plot(x222, y222,)
 
 # =============================================================================
