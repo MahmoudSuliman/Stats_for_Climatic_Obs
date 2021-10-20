@@ -228,7 +228,27 @@ plt.plot(data['Representativ månad'],predictions, 'g')
 
 # =============================================================================
 # =============================================================================
-# Seasonal Mann-Kendall
+# Seasonal Mann-Kendall and sen slope
 import pymannkendall as mk
+
+# autocorrelation plot (high ac = we should use mk)
+fig, ax = plt.subplots(figsize=(12, 8))
+sm.graphics.tsa.plot_acf(data['Lufttemperatur'], lags=20, ax=ax)
+
+# seasonal Mann-Kendall
+smk=mk.seasonal_test(data['Lufttemperatur'],period=12)
+print(smk)
+
+smk.trend #trend
+smk.h         # hypothesis (false= no trend, true= there is trend)
+smk.p         # if p-value < 0.1/0.05/0.01 => theres statistically significant 
+              # evidence that a trend is present in the time series data
+smk.z         # normalized test statistics
+smk.Tau       # Kendall Tau
+smk.s         # Mann-Kendal's score
+smk.var_s     # Variance S
+smk.slope     # Theil-Sen estimator/slope
+smk.intercept # intercept of Kendall-Theil Robust Line, for seasonal test, 
+              # full period cycle consider as unit time step
 
 # =============================================================================
