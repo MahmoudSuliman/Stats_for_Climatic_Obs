@@ -22,6 +22,11 @@ from PIL import Image, ImageDraw
 from pathlib import Path
 from functools import partial
 
+import pymannkendall as mk
+from sklearn import linear_model
+from statsmodels.graphics.regressionplots import abline_plot
+import statsmodels.api as sm
+
 # =============================================================================
 # =============================================================================
 
@@ -172,7 +177,6 @@ plt.plot(x222, y222,)
 
 # using statmodels
 
-import statsmodels.api as sm
 
 data=dtfin['10.Skövde']
 data['Representativ månad'] = data.index.to_julian_date() # convert to pddatetime
@@ -189,7 +193,6 @@ linrp = model.params
 model.summary()
 
 # plotting
-from statsmodels.graphics.regressionplots import abline_plot
 
 # scatter-plot data
 ax = data.plot(x='Representativ månad', y='Lufttemperatur', kind='scatter')
@@ -207,7 +210,6 @@ plt.ylim(1.99,2.01)
 #------------------------------------------------------------------------------
 
 # using sklearn
-from sklearn import linear_model
 
 lm = linear_model.LinearRegression()
 
@@ -229,7 +231,6 @@ plt.plot(data['Representativ månad'],predictions, 'g')
 # =============================================================================
 # =============================================================================
 # Seasonal Mann-Kendall and sen slope
-import pymannkendall as mk
 
 # autocorrelation plot (high ac = we should use mk)
 fig, ax = plt.subplots(figsize=(12, 8))
