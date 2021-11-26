@@ -33,7 +33,7 @@ import statsmodels.api as sm
 # defining head directory
 headdir=r'C:\Users\KIDDO\Downloads\SU Study\Traineeship\Urban Heat Island\Data_22T_23P'
 
-# getting a list of all subdirectories within the head directory
+# getting a list of all immediate subdirectories within the head directory
 subdir = [f.path for f in os.scandir(headdir) if f.is_dir()]
 
 # getting all climatic csv file directories
@@ -43,7 +43,7 @@ for i in range(0, len(subdir)):
     # print(clist1)
     clist.append(clist1[0])
     clist.append(clist1[1])
-  
+
 # =============================================================================
 # =============================================================================
 
@@ -251,5 +251,62 @@ smk.var_s     # Variance S
 smk.slope     # Theil-Sen estimator/slope
 smk.intercept # intercept of Kendall-Theil Robust Line, for seasonal test, 
               # full period cycle consider as unit time step
+
+# =============================================================================
+# =============================================================================
+# =============================================================================
+# =============================================================================
+# =============================================================================
+# =============================================================================
+# classification part
+
+# getting all subdirectories within head directories
+subdirall= [x[0] for x in os.walk(headdir)]
+
+# getting all classification csv files
+clalist=[]
+for i in range(0, len(subdirall)):
+    clalist1= glob.glob(subdirall[i]+'\\*pixres.csv')
+    # print(clalist1)
+    if clalist1==[]:
+        print('Nothing here!')
+    else:
+        clalist.append(clalist1[0])
+    
+clalist[0]
+x=pd.read_csv(clalist[0], sep=',')
+
+# =============================================================================
+# =============================================================================
+# 
+# stations list
+stlist=[]
+for i in range (0,len(subdir)):
+    zapath=Path(subdir[i])
+    splitparpath=os.path.split(zapath)
+    stname = splitparpath[1]
+    stlist.append(stname)
+
+claraw={}
+for i in range (0, len(clalist)):
+    for j in range(0, len(stlist)):
+        if clalist[i].find(stlist[j]) != -1:
+            if clalist[i].find('1960') != -1:
+                his = pd.read_csv(clalist[i], sep=',')
+                his.columns = his.iloc[0]
+                his = his.drop (his.index[0])
+                his = his.rename(index={1:'hist'})
+                his = his.rename(columns={0:'null', 2:'hveg2', 3:'iveg3', 4:'lveg4', 5:'urb5'})
+            else:
+                latest= pd.read_csv(clalist[i], sep=',')
+                latest.columns = latest.iloc[0]
+                latest = latest.drop (latest.index[0])
+                latest = latest.rename(index={1:'latest'})
+                latest = latest.rename(columns={0:'null', 2:'hveg2', 3:'iveg3', 4:'lveg4', 5:'urb5'})
+            histlat= pd.DataFrame(data=[], columns=['hveg2','iveg3','lveg4','urb5'])
+            histlat=pd.concat([histlat,his,latest])
+            claraw[stlist[j]]=histlat        
+
+# histlat['hveg2'][0]+histlat['hveg2'][0]
 
 # =============================================================================
