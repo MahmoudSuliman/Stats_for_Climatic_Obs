@@ -297,16 +297,24 @@ for i in range (0, len(clalist)):
                 his = his.drop (his.index[0])
                 his = his.rename(index={1:'hist'})
                 his = his.rename(columns={0:'null', 2:'hveg2', 3:'iveg3', 4:'lveg4', 5:'urb5'})
+                his= his.drop('null', 1)
+                his['pixelnr']= his.sum(1)
+                his['precurb']= (his['urb5'][0]/his['pixelnr'][0])*100
             else:
                 latest= pd.read_csv(clalist[i], sep=',')
                 latest.columns = latest.iloc[0]
                 latest = latest.drop (latest.index[0])
                 latest = latest.rename(index={1:'latest'})
-                latest = latest.rename(columns={0:'null', 2:'hveg2', 3:'iveg3', 4:'lveg4', 5:'urb5'})
+                latest = latest.rename(columns={0:'null', 2:'hveg2', 3:'iveg3',
+                                                4:'lveg4', 5:'urb5'})
+                latest= latest.drop('null', 1)
+                latest['pixelnr']= latest.sum(1)
+                latest['precurb']= (latest['urb5'][0]/latest['pixelnr'][0])*100
             histlat= pd.DataFrame(data=[], columns=['hveg2','iveg3','lveg4','urb5'])
             histlat=pd.concat([histlat,his,latest])
             claraw[stlist[j]]=histlat        
 
 # histlat['hveg2'][0]+histlat['hveg2'][0]
-
+his['pixelnr']=his['hveg2'][0]+his['iveg3'][0]+his['lveg4'][0]+his['urb5'][0]
+his['precurb']= (his['urb5'][0]/his['pixelnr'][0])*100
 # =============================================================================
