@@ -287,6 +287,7 @@ for i in range (0,len(subdir)):
     stname = splitparpath[1]
     stlist.append(stname)
 
+
 claraw={}
 for i in range (0, len(clalist)):
     for j in range(0, len(stlist)):
@@ -314,7 +315,206 @@ for i in range (0, len(clalist)):
             histlat=pd.concat([histlat,his,latest])
             claraw[stlist[j]]=histlat        
 
-# histlat['hveg2'][0]+histlat['hveg2'][0]
+clafin={}
+for j in range(0, len(stlist)):
+    clafin[stlist[j]]=claraw[stlist[j]]['precurb'][1]-claraw[stlist[j]]['precurb'][0]
+
 his['pixelnr']=his['hveg2'][0]+his['iveg3'][0]+his['lveg4'][0]+his['urb5'][0]
 his['precurb']= (his['urb5'][0]/his['pixelnr'][0])*100
+# =============================================================================
+fldec = []
+flnocha = []
+# flmininc = []
+flinc = []
+flarinc= []
+
+for keys, vals in clafin.items():
+    if vals <= -3:
+        fldec.append(keys)
+    if -3 < vals <= 3:
+        flnocha.append(keys)
+    if 3 < vals <= 20:
+        flinc.append(keys)
+    if vals > 20:
+        flarinc.append(keys)
+
+flbins={}
+flbins['decrease']= fldec
+flbins['no change']= flnocha
+flbins['increase']= flinc
+flbins['large increase']= flarinc
+
+
+# =============================================================================
+# 
+# =============================================================================
+# =============================================================================
+# 
+
+# using statmodels
+
+dtslopes=pd.DataFrame(data=[], columns=['stname','linregslope','smkslope'])
+for keys, vals in dtfin.items():    
+    data=dtfin[keys]
+    data['Representativ månad'] = data.index.to_julian_date() # convert to pddatetime
+    # seasonal MK
+    linrx = data['Representativ månad'] 
+    linry = data['Lufttemperatur']
+    smk=mk.seasonal_test(data['Lufttemperatur'],period=12)
+    smkslope= smk.slope
+    # Linear regression (drops nan values)
+    linrx = data[data['Lufttemperatur'].notna()]['Representativ månad']
+    linry = data[data['Lufttemperatur'].notna()]['Lufttemperatur']
+    model = sm.OLS(linry, sm.add_constant(linrx)).fit()
+    linrp = model.params
+    slope=linrp['Representativ månad']
+    # saving
+    x=pd.DataFrame(data=[], columns=['stname','linregslope','smkslope'])
+    x.loc[0]= [keys , slope, smkslope]
+    dtslopes=pd.concat([dtslopes,x])
+
+
+dpslopes=pd.DataFrame(data=[], columns=['stname','linregslope','smkslope'])
+for keys, vals in dtfin.items():    
+    data=dpfin[keys]
+    data['Representativ månad'] = data.index.to_julian_date() # convert to pddatetime
+
+    linrx = data['Representativ månad'] 
+    linry = data['Nederbördsmängd']
+    smk=mk.seasonal_test(data['Nederbördsmängd'],period=12)
+    smkslope= smk.slope
+    
+    linrx = data[data['Nederbördsmängd'].notna()]['Representativ månad']
+    linry = data[data['Nederbördsmängd'].notna()]['Nederbördsmängd']
+    model = sm.OLS(linry, sm.add_constant(linrx)).fit()
+    linrp = model.params    
+    slope=linrp['Representativ månad']
+
+    x=pd.DataFrame(data=[], columns=['stname','linregslope','smkslope'])
+    x.loc[0]= [keys , slope, smkslope]
+    dpslopes=pd.concat([dpslopes,x])
+
+stprec=pd.DataFrame(data=[])
+for keys, vals in clafin.items():
+    x=pd.DataFrame(data=[[keys,vals]])
+    stprec=pd.concat([stprec,x])
+
+finres=pd.concat([dtslopes,dpslopes, stprec], axis=1)
+
+resdec=pd.DataFrame(data=[])
+for i in range (0,len(finres)):
+    for j in range(0, len(fldec)):
+        if finres.iloc[i,0]== fldec[j]:
+            x=finres.iloc[[i]]
+            resdec=pd.concat([resdec,x])
+
+resnocha=pd.DataFrame(data=[])
+for i in range (0,len(finres)):
+    for j in range(0, len(flnocha)):
+        if finres.iloc[i,0]== flnocha[j]:
+            x=finres.iloc[[i]]
+            resnocha=pd.concat([resnocha,x])
+
+resinc=pd.DataFrame(data=[])
+for i in range (0,len(finres)):
+    for j in range(0, len(flinc)):
+        if finres.iloc[i,0]== flinc[j]:
+            x=finres.iloc[[i]]
+            resinc=pd.concat([resinc,x])
+
+reslarinc=pd.DataFrame(data=[])
+for i in range (0,len(finres)):
+    for j in range(0, len(flarinc)):
+        if finres.iloc[i,0]== flarinc[j]:
+            x=finres.iloc[[i]]
+            reslarinc=pd.concat([reslarinc,x])
+
+# t vs precentage
+plt.scatter(finres.iloc[:,7], finres.iloc[:,2])
+
+# p vs precentage
+plt.scatter(finres.iloc[:,7], finres.iloc[:,5])
+
+# categorized t
+plt.figure(figsize=(8,5))
+plt.scatter(resdec.iloc[:,7], resdec.iloc[:,2], c='Skyblue', label='Decrease')
+plt.scatter(resnocha.iloc[:,7], resnocha.iloc[:,2], c='Lawngreen', label='No change')
+plt.scatter(resinc.iloc[:,7], resinc.iloc[:,2], c='Orange', label='Increase')
+plt.scatter(reslarinc.iloc[:,7], reslarinc.iloc[:,2], c='crimson', label='Large Increase')
+plt.hlines(np.average(resdec.iloc[:,2]), -20, 70, 'Skyblue','--')
+plt.hlines(np.average(resnocha.iloc[:,2]), -20, 70, 'Lawngreen', '--')
+plt.hlines(np.average(resinc.iloc[:,2]), -20, 70, 'Orange','--')
+plt.hlines(np.average(reslarinc.iloc[:,2]), -20, 70, 'crimson', '--')
+plt.xlim(-20,60)
+plt.grid(True, linestyle='--',  color='black', alpha=0.2)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.17),
+                   fancybox=True, shadow=True, ncol=5, fontsize=12)
+plt.ylabel('Slope', fontsize=16)
+plt.xlabel ('Increase in Urban LC', fontsize=16)
+plt.title('Sen Slope (Temperature)')
+plt.savefig(r'C:\Users\KIDDO\Downloads\SU Study\Traineeship\Urban Heat Island\python\figures\SenT.jpg', dpi=300, bbox_inches='tight')
+
+np.average(resdec.iloc[:,2])
+np.average(resnocha.iloc[:,2])
+np.average(resinc.iloc[:,2])
+np.average(reslarinc.iloc[:,2])
+
+# categorized p
+plt.figure(figsize=(8,5))
+plt.scatter(resdec.iloc[:,7], resdec.iloc[:,5], c='Skyblue', label='Decrease')
+plt.scatter(resnocha.iloc[:,7], resnocha.iloc[:,5], c='Lawngreen', label='No change')
+plt.scatter(resinc.iloc[:,7], resinc.iloc[:,5], c='Orange', label='Increase')
+plt.scatter(reslarinc.iloc[:,7], reslarinc.iloc[:,5], c='crimson', label='Large Increase')
+plt.hlines(np.average(resdec.iloc[:,5]), -20, 70, 'Skyblue','--')
+plt.hlines(np.average(resnocha.iloc[:,5]), -20, 70, 'Lawngreen', '--')
+plt.hlines(np.average(resinc.iloc[:,5]), -20, 70, 'Orange','--')
+plt.hlines(np.average(reslarinc.iloc[:,5]), -20, 70, 'crimson', '--')
+plt.xlim(-20,60)
+plt.grid(True, linestyle='--',  color='black', alpha=0.2)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.17),
+                   fancybox=True, shadow=True, ncol=5, fontsize=12)
+plt.ylabel('Slope', fontsize=16)
+plt.xlabel ('Increase in Urban LC', fontsize=16)
+plt.title('Sen Slope (Precipitation)')
+plt.savefig(r'C:\Users\KIDDO\Downloads\SU Study\Traineeship\Urban Heat Island\python\figures\SenP.jpg', dpi=300, bbox_inches='tight')
+
+# linreg categorized t
+plt.figure(figsize=(8,5))
+plt.scatter(resdec.iloc[:,7], resdec.iloc[:,1], c='Skyblue', label='Decrease')
+plt.scatter(resnocha.iloc[:,7], resnocha.iloc[:,1], c='Lawngreen', label='No change')
+plt.scatter(resinc.iloc[:,7], resinc.iloc[:,1], c='Orange', label='Increase')
+plt.scatter(reslarinc.iloc[:,7], reslarinc.iloc[:,1], c='crimson', label='Large Increase')
+plt.hlines(np.average(resdec.iloc[:,1]), -20, 70, 'Skyblue','--')
+plt.hlines(np.average(resnocha.iloc[:,1]), -20, 70, 'Lawngreen', '--')
+plt.hlines(np.average(resinc.iloc[:,1]), -20, 70, 'Orange','--')
+plt.hlines(np.average(reslarinc.iloc[:,1]), -20, 70, 'crimson', '--')
+plt.xlim(-20,60)
+plt.grid(True, linestyle='--',  color='black', alpha=0.2)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.17),
+                   fancybox=True, shadow=True, ncol=5, fontsize=12)
+plt.ylabel('Slope', fontsize=16)
+plt.xlabel ('Increase in Urban LC', fontsize=16)
+plt.title('Linear regression slope (Temperature)')
+plt.savefig(r'C:\Users\KIDDO\Downloads\SU Study\Traineeship\Urban Heat Island\python\figures\LinregT.jpg', dpi=300, bbox_inches='tight')
+
+# linreg categorized p
+plt.figure(figsize=(8,5))
+plt.scatter(resdec.iloc[:,7], resdec.iloc[:,4], c='Skyblue', label='Decrease')
+plt.scatter(resnocha.iloc[:,7], resnocha.iloc[:,4], c='Lawngreen', label='No change')
+plt.scatter(resinc.iloc[:,7], resinc.iloc[:,4], c='Orange', label='Increase')
+plt.scatter(reslarinc.iloc[:,7], reslarinc.iloc[:,4], c='crimson', label='Large Increase')
+plt.hlines(np.average(resdec.iloc[:,4]), -20, 70, 'Skyblue','--')
+plt.hlines(np.average(resnocha.iloc[:,4]), -20, 70, 'Lawngreen', '--')
+plt.hlines(np.average(resinc.iloc[:,4]), -20, 70, 'Orange','--')
+plt.hlines(np.average(reslarinc.iloc[:,4]), -20, 70, 'crimson', '--')
+plt.xlim(-20,60)
+plt.grid(True, linestyle='--',  color='black', alpha=0.2)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.17),
+                   fancybox=True, shadow=True, ncol=5, fontsize=12)
+plt.ylabel('Slope', fontsize=16)
+plt.xlabel ('Increase in Urban LC', fontsize=16)
+plt.title('Linear regression slope (Precipitation)')
+plt.savefig(r'C:\Users\KIDDO\Downloads\SU Study\Traineeship\Urban Heat Island\python\figures\LinregP.jpg', dpi=300, bbox_inches='tight')
+
+# =============================================================================
 # =============================================================================
