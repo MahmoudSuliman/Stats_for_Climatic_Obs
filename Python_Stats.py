@@ -200,6 +200,9 @@ abline_plot(model_results=model, ax=ax, color='g')
 
 slope=linrp['Representativ månad']
 
+# pvalue
+pval=model.pvalues['Representativ månad']
+
 xtest1=1; xtest2=2
 ytest2=2; ytest1=ytest2-slope
 
@@ -362,15 +365,17 @@ for keys, vals in dtfin.items():
     linry = data['Lufttemperatur']
     smk=mk.seasonal_test(data['Lufttemperatur'],period=12)
     smkslope= smk.slope
+    smkpval=smk.p
     # Linear regression (drops nan values)
     linrx = data[data['Lufttemperatur'].notna()]['Representativ månad']
     linry = data[data['Lufttemperatur'].notna()]['Lufttemperatur']
     model = sm.OLS(linry, sm.add_constant(linrx)).fit()
     linrp = model.params
     slope=linrp['Representativ månad']
+    pval = model.pvalues['Representativ månad']
     # saving
-    x=pd.DataFrame(data=[], columns=['stname','linregslope','smkslope'])
-    x.loc[0]= [keys , slope, smkslope]
+    x=pd.DataFrame(data=[], columns=['stname','linregslope', 'linregpval','smkslope','smkpval'])
+    x.loc[0]= [keys , slope, pval, smkslope, smkpval]
     dtslopes=pd.concat([dtslopes,x])
 
 
@@ -383,15 +388,17 @@ for keys, vals in dtfin.items():
     linry = data['Nederbördsmängd']
     smk=mk.seasonal_test(data['Nederbördsmängd'],period=12)
     smkslope= smk.slope
-    
+    smkpval=smk.p
+
     linrx = data[data['Nederbördsmängd'].notna()]['Representativ månad']
     linry = data[data['Nederbördsmängd'].notna()]['Nederbördsmängd']
     model = sm.OLS(linry, sm.add_constant(linrx)).fit()
     linrp = model.params    
     slope=linrp['Representativ månad']
+    pval = model.pvalues['Representativ månad']
 
-    x=pd.DataFrame(data=[], columns=['stname','linregslope','smkslope'])
-    x.loc[0]= [keys , slope, smkslope]
+    x=pd.DataFrame(data=[], columns=['stname','linregslope', 'linregpval','smkslope','smkpval'])
+    x.loc[0]= [keys , slope, pval, smkslope, smkpval]
     dpslopes=pd.concat([dpslopes,x])
 
 stprec=pd.DataFrame(data=[])
