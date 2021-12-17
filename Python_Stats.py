@@ -401,11 +401,13 @@ for keys, vals in dtfin.items():
     x.loc[0]= [keys , slope, pval, smkslope, smkpval]
     dpslopes=pd.concat([dpslopes,x])
 
+# percentages for the stations (classification)
 stprec=pd.DataFrame(data=[])
 for keys, vals in clafin.items():
     x=pd.DataFrame(data=[[keys,vals]])
     stprec=pd.concat([stprec,x])
 
+# concatenating all the slopes and the stations percentages
 finres=pd.concat([dtslopes,dpslopes, stprec], axis=1)
 
 resdec=pd.DataFrame(data=[])
@@ -444,10 +446,10 @@ plt.scatter(finres.iloc[:,7], finres.iloc[:,5])
 
 # categorized t
 plt.figure(figsize=(8,5))
-plt.scatter(resdec.iloc[:,7], resdec.iloc[:,2], c='Skyblue', label='Decrease')
-plt.scatter(resnocha.iloc[:,7], resnocha.iloc[:,2], c='Lawngreen', label='No change')
-plt.scatter(resinc.iloc[:,7], resinc.iloc[:,2], c='Orange', label='Increase')
-plt.scatter(reslarinc.iloc[:,7], reslarinc.iloc[:,2], c='crimson', label='Large Increase')
+plt.scatter(resdec.iloc[:,11], resdec.iloc[:,2], c='Skyblue', label='Decrease')
+plt.scatter(resnocha.iloc[:,11], resnocha.iloc[:,2], c='Lawngreen', label='No change')
+plt.scatter(resinc.iloc[:,11], resinc.iloc[:,2], c='Orange', label='Increase')
+plt.scatter(reslarinc.iloc[:,11], reslarinc.iloc[:,2], c='crimson', label='Large Increase')
 plt.hlines(np.average(resdec.iloc[:,2]), -20, 70, 'Skyblue','--')
 plt.hlines(np.average(resnocha.iloc[:,2]), -20, 70, 'Lawngreen', '--')
 plt.hlines(np.average(resinc.iloc[:,2]), -20, 70, 'Orange','--')
@@ -468,14 +470,14 @@ np.average(reslarinc.iloc[:,2])
 
 # categorized p
 plt.figure(figsize=(8,5))
-plt.scatter(resdec.iloc[:,7], resdec.iloc[:,5], c='Skyblue', label='Decrease')
-plt.scatter(resnocha.iloc[:,7], resnocha.iloc[:,5], c='Lawngreen', label='No change')
-plt.scatter(resinc.iloc[:,7], resinc.iloc[:,5], c='Orange', label='Increase')
-plt.scatter(reslarinc.iloc[:,7], reslarinc.iloc[:,5], c='crimson', label='Large Increase')
-plt.hlines(np.average(resdec.iloc[:,5]), -20, 70, 'Skyblue','--')
-plt.hlines(np.average(resnocha.iloc[:,5]), -20, 70, 'Lawngreen', '--')
-plt.hlines(np.average(resinc.iloc[:,5]), -20, 70, 'Orange','--')
-plt.hlines(np.average(reslarinc.iloc[:,5]), -20, 70, 'crimson', '--')
+plt.scatter(resdec.iloc[:,11], resdec.iloc[:,7], c='Skyblue', label='Decrease')
+plt.scatter(resnocha.iloc[:,11], resnocha.iloc[:,7], c='Lawngreen', label='No change')
+plt.scatter(resinc.iloc[:,11], resinc.iloc[:,7], c='Orange', label='Increase')
+plt.scatter(reslarinc.iloc[:,11], reslarinc.iloc[:,7], c='crimson', label='Large Increase')
+plt.hlines(np.average(resdec.iloc[:,7]), -20, 70, 'Skyblue','--')
+plt.hlines(np.average(resnocha.iloc[:,7]), -20, 70, 'Lawngreen', '--')
+plt.hlines(np.average(resinc.iloc[:,7]), -20, 70, 'Orange','--')
+plt.hlines(np.average(reslarinc.iloc[:,7]), -20, 70, 'crimson', '--')
 plt.xlim(-20,60)
 plt.grid(True, linestyle='--',  color='black', alpha=0.2)
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.17),
@@ -487,10 +489,10 @@ plt.savefig(r'C:\Users\KIDDO\Downloads\SU Study\Traineeship\Urban Heat Island\py
 
 # linreg categorized t
 plt.figure(figsize=(8,5))
-plt.scatter(resdec.iloc[:,7], resdec.iloc[:,1], c='Skyblue', label='Decrease')
-plt.scatter(resnocha.iloc[:,7], resnocha.iloc[:,1], c='Lawngreen', label='No change')
-plt.scatter(resinc.iloc[:,7], resinc.iloc[:,1], c='Orange', label='Increase')
-plt.scatter(reslarinc.iloc[:,7], reslarinc.iloc[:,1], c='crimson', label='Large Increase')
+plt.scatter(resdec.iloc[:,11], resdec.iloc[:,1], c='Skyblue', label='Decrease')
+plt.scatter(resnocha.iloc[:,11], resnocha.iloc[:,1], c='Lawngreen', label='No change')
+plt.scatter(resinc.iloc[:,11], resinc.iloc[:,1], c='Orange', label='Increase')
+plt.scatter(reslarinc.iloc[:,11], reslarinc.iloc[:,1], c='crimson', label='Large Increase')
 plt.hlines(np.average(resdec.iloc[:,1]), -20, 70, 'Skyblue','--')
 plt.hlines(np.average(resnocha.iloc[:,1]), -20, 70, 'Lawngreen', '--')
 plt.hlines(np.average(resinc.iloc[:,1]), -20, 70, 'Orange','--')
@@ -506,14 +508,14 @@ plt.savefig(r'C:\Users\KIDDO\Downloads\SU Study\Traineeship\Urban Heat Island\py
 
 # linreg categorized p
 plt.figure(figsize=(8,5))
-plt.scatter(resdec.iloc[:,7], resdec.iloc[:,4], c='Skyblue', label='Decrease')
-plt.scatter(resnocha.iloc[:,7], resnocha.iloc[:,4], c='Lawngreen', label='No change')
-plt.scatter(resinc.iloc[:,7], resinc.iloc[:,4], c='Orange', label='Increase')
-plt.scatter(reslarinc.iloc[:,7], reslarinc.iloc[:,4], c='crimson', label='Large Increase')
-plt.hlines(np.average(resdec.iloc[:,4]), -20, 70, 'Skyblue','--')
-plt.hlines(np.average(resnocha.iloc[:,4]), -20, 70, 'Lawngreen', '--')
-plt.hlines(np.average(resinc.iloc[:,4]), -20, 70, 'Orange','--')
-plt.hlines(np.average(reslarinc.iloc[:,4]), -20, 70, 'crimson', '--')
+plt.scatter(resdec.iloc[:,11], resdec.iloc[:,6], c='Skyblue', label='Decrease')
+plt.scatter(resnocha.iloc[:,11], resnocha.iloc[:,6], c='Lawngreen', label='No change')
+plt.scatter(resinc.iloc[:,11], resinc.iloc[:,6], c='Orange', label='Increase')
+plt.scatter(reslarinc.iloc[:,11], reslarinc.iloc[:,6], c='crimson', label='Large Increase')
+plt.hlines(np.average(resdec.iloc[:,6]), -20, 70, 'Skyblue','--')
+plt.hlines(np.average(resnocha.iloc[:,6]), -20, 70, 'Lawngreen', '--')
+plt.hlines(np.average(resinc.iloc[:,6]), -20, 70, 'Orange','--')
+plt.hlines(np.average(reslarinc.iloc[:,6]), -20, 70, 'crimson', '--')
 plt.xlim(-20,60)
 plt.grid(True, linestyle='--',  color='black', alpha=0.2)
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.17),
